@@ -8,20 +8,27 @@ import ListBooks from './ListBooks'
 
 class BooksApp extends React.Component {
   state = {
-    books: []
-  }
-
-  componentDidMount() {
-    BooksAPI.getAll().then((books) => {
-      this.setState({ books })
-    })
+    currentlyReading: [],
+    read: [],
+    wantToRead: []
   }
 
   updateBook = (book, shelf) => {
-    BooksAPI.update(book, shelf);
+    BooksAPI.update(book, shelf).then(() => this.getBooks())
+  }
+
+  getBooks = () => {
     BooksAPI.getAll().then((books) => {
-      this.setState({ books })
+      this.setState({
+        currentlyReading: books.filter((book) => book.shelf === "currentlyReading"),
+        wantToRead: books.filter((book) => book.shelf === "wantToRead"),
+        read: books.filter((book) => book.shelf === "read")
+      })
     })
+  }
+
+  componentDidMount() {
+    this.getBooks()
   }
 
   render() {
@@ -35,15 +42,15 @@ class BooksApp extends React.Component {
             <div className="list-books-content">
               <div>
                 <ListBooks
-                  books={this.state.books.filter((book) => book.shelf === "currentlyReading")}
+                  books={this.state.currentlyReading}
                   shelf="Currently Reading"
                   onUpdateBook={this.updateBook}/>
                 <ListBooks
-                  books={this.state.books.filter((book) => book.shelf === "wantToRead")}
+                  books={this.state.wantToRead}
                   shelf="Want to Read"
                   onUpdateBook={this.updateBook}/>
                 <ListBooks
-                  books={this.state.books.filter((book) => book.shelf === "read")}
+                  books={this.state.read}
                   shelf="Read"
                   onUpdateBook={this.updateBook}/>
               </div>
@@ -54,8 +61,7 @@ class BooksApp extends React.Component {
           </div>
         )}/>
         <Route path="/search" render={() => (
-          <Search books={this.state.books}
-            onUpdateBook={this.updateBook}/>
+          <Search getBooks={this.getBooks}/>
         )}/>
       </div>
     )
