@@ -1,39 +1,53 @@
 import React, {Component} from 'react'
 import {Link} from 'react-router-dom'
-import escapeRegExp from 'escape-string-regexp'
-import PropTypes from 'prop-types'
+import * as BooksAPI from './BooksAPI'
 import ListBooks from './ListBooks'
 
 class Search extends Component {
-  static propTypes = {
-    books: PropTypes.array.isRequired,
-    onUpdateBook: PropTypes.func.isRequired
+  state = {
+    query: '',
+    results: []
   }
 
-  state = {
-    query: ''
+  searchBooks = (query) => {
+    var books
+
+    BooksAPI.search(query, 20).then((results) => {
+      if(results && !results.error) {
+        books = results.map((book) => {
+          return BooksAPI.get(book.id)
+        })
+
+        Promise.all(books).then((final) =>
+          this.setState({ results: final })
+        )
+      }
+    }).catch((e) => {
+      this.setState({ results: [] })
+      console.log(e)
+    })
   }
 
   updateQuery = (query) => {
-    this.setState({ query: query.trim() })
+    if (query)
+      this.setState({ query: query }, this.searchBooks(query))
+    else
+      this.setState({ query: query, results: [] })
   }
 
   clearQuery = () => {
     this.setState({ query: '' })
   }
 
+  onUpdateBook = (book, shelf) => {
+    BooksAPI.update(book, shelf).then(() => {
+      this.searchBooks(this.state.query)
+      this.props.getBooks()
+    })
+  }
+
   render() {
-    const { query } = this.state
-    const { books, onUpdateBook } = this.props
-
-    let showingBooks
-
-    if (query) {
-      const match = new RegExp(escapeRegExp(query), 'i')
-      showingBooks = books.filter((book) => match.test(book.title) || match.test(book.authors))
-    } else {
-      showingBooks = books
-    }
+    const { query, results } = this.state
 
     return (
       <div className="search-books">
@@ -47,9 +61,9 @@ class Search extends Component {
         </div>
         <div className="search-books-results">
           <ListBooks
-            books={showingBooks}
-            onUpdateBook={onUpdateBook}
-            shelf="Search Results:"/>
+            books={results}
+            onUpdateBook={this.onUpdateBook}
+            shelf="Search Results"/>
         </div>
       </div>
     )
