@@ -14,7 +14,7 @@ class BooksApp extends React.Component {
   }
 
   updateBook = (book, shelf) => {
-    BooksAPI.update(book, shelf).then(() => this.getBooks())
+    BooksAPI.update(book, shelf).then(() => this.getBooks());
   }
 
   getBooks = () => {
@@ -23,12 +23,12 @@ class BooksApp extends React.Component {
         currentlyReading: books.filter((book) => book.shelf === "currentlyReading"),
         wantToRead: books.filter((book) => book.shelf === "wantToRead"),
         read: books.filter((book) => book.shelf === "read")
-      })
-    })
+      });
+    });
   }
 
   componentDidMount() {
-    this.getBooks()
+    this.getBooks();
   }
 
   render() {

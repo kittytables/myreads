@@ -9,9 +9,8 @@ class ListBooks extends Component {
   }
 
   render() {
-    const { books, shelf, onUpdateBook } = this.props
-
-    let showingBooks = books
+    const { books, shelf, onUpdateBook } = this.props;
+    let showingBooks = books;
 
     return(
       <div className="bookshelf">

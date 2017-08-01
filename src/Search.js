@@ -10,44 +10,44 @@ class Search extends Component {
   }
 
   searchBooks = (query) => {
-    var books
+    var books;
 
     BooksAPI.search(query, 20).then((results) => {
       if(results && !results.error) {
         books = results.map((book) => {
-          return BooksAPI.get(book.id)
-        })
+          return BooksAPI.get(book.id);
+        });
 
         Promise.all(books).then((final) =>
           this.setState({ results: final })
-        )
-      }
+        )};
     }).catch((e) => {
-      this.setState({ results: [] })
-      console.log(e)
-    })
+      this.setState({ results: [] });
+      console.log(e);
+    });
   }
 
   updateQuery = (query) => {
-    if (query)
-      this.setState({ query: query }, this.searchBooks(query))
-    else
-      this.setState({ query: query, results: [] })
+    if (query) {
+      this.setState({ query: query }, this.searchBooks(query));
+    } else {
+      this.setState({ query: query, results: [] });
+    }
   }
 
   clearQuery = () => {
-    this.setState({ query: '' })
+    this.setState({ query: '' });
   }
 
   onUpdateBook = (book, shelf) => {
     BooksAPI.update(book, shelf).then(() => {
-      this.searchBooks(this.state.query)
-      this.props.getBooks()
-    })
+      this.searchBooks(this.state.query);
+      this.props.getBooks();
+    });
   }
 
   render() {
-    const { query, results } = this.state
+    const { query, results } = this.state;
 
     return (
       <div className="search-books">
